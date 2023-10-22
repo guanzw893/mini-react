@@ -3,7 +3,7 @@ import {
   updateHostComponent
 } from './ReactFiberReconciler'
 import { FunctionComponent, HostComponent } from './ReactWorkTags'
-import { Placement } from './utils'
+import { Placement, Update, updateNode } from './utils'
 
 // work in progress 当前正在工作中的
 let wip = null
@@ -54,6 +54,8 @@ function workLoop(IdleDeadLine) {
   if (!wip && wipRoot) {
     commitRoot()
   }
+
+  requestIdleCallback(workLoop)
 }
 
 requestIdleCallback(workLoop)
@@ -67,12 +69,19 @@ function commitWorker(wip) {
   if (!wip) {
     return
   }
+
   // 1. 提交自己
   const { flags, stateNode } = wip
   const parentNode = getParentNode(wip.return)
+  // 插入（初次渲染、更新移动位置）
   if (flags & Placement && stateNode) {
     parentNode.appendChild(stateNode)
   }
+  // 修改
+  if (flags & Update && stateNode) {
+    updateNode(wip.stateNode, wip.alternate?.props, wip.props)
+  }
+
   // 2. 提交子节点
   commitWorker(wip.child)
   // 3. 提交兄弟

@@ -1,5 +1,6 @@
 import { createFiber } from './ReactFiber'
-import { isStringOrNumber, updateNode } from './utils'
+import { renderWithHooks } from './hooks'
+import { Update, isStringOrNumber, sameNode, updateNode } from './utils'
 
 export function updateHostComponent(wip) {
   if (!wip.stateNode) {
@@ -7,12 +8,14 @@ export function updateHostComponent(wip) {
     wip.stateNode = document.createElement(wip.type)
   }
 
-  updateNode(wip.stateNode, wip.props)
+  updateNode(wip.stateNode, wip.props, wip.props)
 
   reconcileChildren(wip, wip.props.children)
 }
 
 export function updateFunctionComponent(wip) {
+  renderWithHooks(wip)
+
   const { type, props } = wip
 
   const children = type(props)
@@ -26,6 +29,7 @@ function reconcileChildren(wip, children) {
   const newChildren = Array.isArray(children) ? children : [children]
   const length = newChildren.length
 
+  let oldFiber = wip.alternate?.child
   let previousNewFiber = null
 
   for (let i = 0; i < length; i++) {
@@ -36,6 +40,19 @@ function reconcileChildren(wip, children) {
     }
 
     const newFiber = createFiber(newChild, wip)
+    const same = sameNode(newFiber, oldFiber)
+    if (same) {
+      Object.assign(newFiber, {
+        stateNode: oldFiber.stateNode,
+        alternate: oldFiber,
+        flags: Update
+      })
+    }
+
+    if (oldFiber) {
+      oldFiber = oldFiber.sibling
+    }
+
     if (previousNewFiber === null) {
       wip.child = newFiber
     } else {
