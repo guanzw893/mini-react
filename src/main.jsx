@@ -1,4 +1,4 @@
 import ReactDOM from './mini-react/react-dom'
-import { jsx } from './App.jsx'
+import App from './App.jsx'
 
-ReactDOM.createRoot(document.getElementById('root')).render(jsx)
+ReactDOM.createRoot(document.getElementById('root')).render(<App app="test" />)

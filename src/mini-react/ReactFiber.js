@@ -1,5 +1,5 @@
-import { Placement, isStr } from './utils'
-import { HostComponent } from './ReactWorkTags'
+import { Placement, isFn, isStr } from './utils'
+import { FunctionComponent, HostComponent } from './ReactWorkTags'
 
 export function createFiber(vnode, returnFiber) {
   const fiber = {
@@ -29,6 +29,7 @@ export function createFiber(vnode, returnFiber) {
   if (isStr(type)) {
     fiber.tag = HostComponent
   } else if (isFn(type)) {
+    fiber.tag = FunctionComponent
   } else {
     // Fragment
   }

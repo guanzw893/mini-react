@@ -7,10 +7,17 @@ export function updateHostComponent(wip) {
     wip.stateNode = document.createElement(wip.type)
   }
 
-  console.dir('wip.stateNode', wip.stateNode)
   updateNode(wip.stateNode, wip.props)
 
   reconcileChildren(wip, wip.props.children)
+}
+
+export function updateFunctionComponent(wip) {
+  const { type, props } = wip
+
+  const children = type(props)
+
+  reconcileChildren(wip, children)
 }
 
 // 初次渲染

@@ -14,11 +14,19 @@ export const isStringOrNumber = (n) => {
   return typeof n === 'string' || typeof n === 'number'
 }
 
+export const isFn = (fn) => {
+  return typeof fn === 'function'
+}
+
 export function updateNode(node, nextVal) {
   Object.keys(nextVal).forEach((k) => {
     if (k === 'children') {
-      if (isStringOrNumber(nextVal[k])) {
-        node.textContent = nextVal[k]
+      const children = Array.isArray(nextVal[k]) ? nextVal[k] : [nextVal[k]]
+      const len = children.length
+      for (let i = 0; i < len; i++) {
+        if (isStringOrNumber(children[i])) {
+          node.textContent = children[i]
+        }
       }
     } else {
       if (k === 'style') {
